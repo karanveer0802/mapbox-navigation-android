@@ -5,6 +5,9 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.mapbox.api.directions.v5.models.VoiceInstructions;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 /**
  * Used to play {@link VoiceInstructions}s.
  * <p>
@@ -17,11 +20,19 @@ import com.mapbox.api.directions.v5.models.VoiceInstructions;
  */
 public class NavigationSpeechPlayer implements SpeechPlayer {
 
+  private Queue<VoiceInstructions> voiceInstructionsQueue = new ArrayDeque<>();
   private SpeechPlayerProvider speechPlayerProvider;
   private boolean isMuted;
 
+  private SpeechPlayerStateChangeObserver observer = state -> {
+    if (!voiceInstructionsQueue.isEmpty() && state == SpeechPlayerState.IDLE) {
+      speechPlayerProvider.retrieveSpeechPlayer().play(voiceInstructionsQueue.poll());
+    }
+  };
+
   public NavigationSpeechPlayer(SpeechPlayerProvider speechPlayerProvider) {
     this.speechPlayerProvider = speechPlayerProvider;
+    this.speechPlayerProvider.setSpeechPlayerStateChangeObserver(observer);
   }
 
   /**
@@ -31,7 +42,11 @@ public class NavigationSpeechPlayer implements SpeechPlayer {
    */
   @Override
   public void play(VoiceInstructions voiceInstructions) {
-    speechPlayerProvider.retrieveSpeechPlayer().play(voiceInstructions);
+    voiceInstructionsQueue.offer(voiceInstructions);
+    SpeechPlayer player = speechPlayerProvider.retrieveSpeechPlayer();
+    if (player != null) {
+      player.play(voiceInstructionsQueue.poll());
+    }
   }
 
   /**
@@ -79,6 +94,8 @@ public class NavigationSpeechPlayer implements SpeechPlayer {
    */
   @Override
   public void onDestroy() {
+    speechPlayerProvider.setSpeechPlayerStateChangeObserver(null);
+    observer = null;
     speechPlayerProvider.onDestroy();
   }
 }

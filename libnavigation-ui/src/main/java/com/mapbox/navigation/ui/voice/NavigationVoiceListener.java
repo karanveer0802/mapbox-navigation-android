@@ -10,24 +10,27 @@ class NavigationVoiceListener implements VoiceListener {
   private SpeechAudioFocusManager audioFocusManager;
 
   NavigationVoiceListener(SpeechPlayerProvider speechPlayerProvider,
-                          SpeechAudioFocusManager audioFocusManager) {
+      SpeechAudioFocusManager audioFocusManager) {
     this.speechPlayerProvider = speechPlayerProvider;
     this.audioFocusManager = audioFocusManager;
   }
 
   @Override
-  public void onStart() {
+  public void onStart(SpeechPlayerState state) {
+    speechPlayerProvider.onSpeechPlayerStateChanged(state);
     audioFocusManager.requestAudioFocus();
   }
 
   @Override
   public void onDone() {
+    speechPlayerProvider.onSpeechPlayerStateChanged(SpeechPlayerState.IDLE);
     audioFocusManager.abandonAudioFocus();
   }
 
   @Override
   public void onError(String errorText, VoiceInstructions voiceInstructions) {
     Timber.e(errorText);
+    speechPlayerProvider.onSpeechPlayerStateChanged(SpeechPlayerState.IDLE);
     speechPlayerProvider.retrieveAndroidSpeechPlayer().play(voiceInstructions);
   }
 }

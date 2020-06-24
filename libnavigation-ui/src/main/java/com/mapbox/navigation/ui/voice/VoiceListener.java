@@ -4,7 +4,7 @@ import com.mapbox.api.directions.v5.models.VoiceInstructions;
 
 interface VoiceListener {
 
-  void onStart();
+  void onStart(SpeechPlayerState state);
 
   void onDone();
 

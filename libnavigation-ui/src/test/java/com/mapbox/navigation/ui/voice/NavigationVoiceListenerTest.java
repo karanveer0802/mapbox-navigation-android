@@ -15,7 +15,7 @@ public class NavigationVoiceListenerTest {
     SpeechAudioFocusManager audioFocusManager = mock(SpeechAudioFocusManager.class);
     NavigationVoiceListener navigationSpeechListener = buildSpeechListener(audioFocusManager);
 
-    navigationSpeechListener.onStart();
+    navigationSpeechListener.onStart(SpeechPlayerState.ONLINE_PLAYING);
 
     verify(audioFocusManager).requestAudioFocus();
   }
