@@ -15,11 +15,11 @@ internal class FasterRouteController(
     private val directionsSession: DirectionsSession,
     private val tripSession: TripSession,
     private val routeOptionsProvider: RouteOptionsProvider,
+    private val fasterRouteDetector: FasterRouteDetector,
     private val logger: Logger
 ) {
 
     private val fasterRouteTimer = MapboxTimer()
-    private val fasterRouteDetector = FasterRouteDetector()
     private var fasterRouteObserver: FasterRouteObserver? = null
 
     fun attach(fasterRouteObserver: FasterRouteObserver) {
